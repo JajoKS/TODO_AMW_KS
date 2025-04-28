@@ -1,5 +1,26 @@
-const dbConfig = require("../config/db.config.js");
+//const dbConfig = require("../config/db.config.js");
 
+require('dotenv').config()
+const { Sequelize } = require('sequelize');
+
+
+// Pobierz URL bazy danych z pliku .env
+const databaseUrl = process.env.DB_URL
+const port = process.env.PORT
+
+// Utwórz instancję Sequelize
+const sequelize = new Sequelize(databaseUrl, {
+  dialect: 'postgres', // Zmień na odpowiedni dialekt, np. 'postgres', 'sqlite'
+  logging: false,   // Opcjonalnie: wyłącz logowanie zapytań SQL
+
+});
+
+// Test połączenia
+sequelize.authenticate()
+  .then(() => console.log('Połączono z bazą danych!'))
+  .catch(err => console.error('Błąd połączenia:', err));
+
+/*
 const { Sequelize, DataTypes } = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
@@ -41,3 +62,4 @@ db.sync = async () => {
 }
 
 module.exports = db;
+*/

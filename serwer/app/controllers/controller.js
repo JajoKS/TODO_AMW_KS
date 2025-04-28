@@ -1,5 +1,5 @@
 const db = require("../models");
-const Op = db.Sequelize.Op;
+//const Op = db.Sequelize.Op;
 
 // Create and Save a new list
 exports.create = async (req, res) => {

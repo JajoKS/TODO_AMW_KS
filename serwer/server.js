@@ -2,12 +2,13 @@ const express = require('express')
 const cors = require('cors')
 
 const app = express()
-const port = process.env.port || 3000;
+const port = process.env.PORT || 3000;
 
 var corsOptions = {
-    origin: "http://localhost:3001"
+    origin: "https://todo-amw-ks.onrender.com"
 };
 
+/*
 app.use(cors(corsOptions))
 app.use(express.json())
 // parse requests - application/x-www-form-urlencoded
@@ -16,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 const db = require("./app/models");
 db.authenticate();
 db.sync();
-
+*/
 
 app.get('/', (req,res) => {
     res.json({ message: "To ja SERWER!!!." })
@@ -32,4 +33,3 @@ app.listen(port,() => {
 app.get("/", (req, res) => {
   res.json({ message: "To ja SERWER!!!." });
 });
-
