@@ -1,149 +1,125 @@
-const db = require("../models");
-//const Op = db.Sequelize.Op;
+const db = require("../models"); // Załóżmy, że models/index.js eksportuje obiekt { sequelize, Sequelize, ... }
+const Sequelize = db.Sequelize;
+const DataTypes = Sequelize.DataTypes;
 
-// Create and Save a new list
-exports.create = async (req, res) => {
-  try {
-      // Validate request
-      if (!req.body.tytul) {
-        res.status(400).send({
-          message: "Zawartość nie może być pusta!"
-        });
-        return;
-      }
-      // Create a User
-      const user = {
-        login: req.body.login,
-        pass: req.body.pass,
-      };
-      
-      const todo = await User.create(tutorial)
-      res.send(todo)
-  } catch (err) {
-    res.status(500).send({
-      message:
-        err.message || "Podczas zapisywania wystąpił błąd."
-    });
+// Definicja modelu "Lists".
+// Jeśli masz już osobny plik modelu, np. list.model.js, możesz go importować.
+const Lists = db.sequelize.define("lists", {
+  title: {
+    type: DataTypes.STRING,
+    allowNull: false  // przyjmujemy, że tytuł nie może być pusty
+  },
+  description: {
+    type: DataTypes.STRING
+  },
+  check: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
+  }
+});
 
+// Synchronizacja modelu – utworzy tabelę "lists" jeżeli nie istnieje.
+Lists.sync()
+  .then(() => console.log("Tabela 'lists' została zapewniona (utworzona, jeśli nie istniała)."))
+  .catch(err => console.error("Błąd podczas tworzenia tabeli 'lists':", err));
+
+// --- Funkcje obsługujące CRUD ---
+
+// Utwórz nową Listę
+exports.create = (req, res) => {
+  // Walidacja – wymagamy pola title
+  if (!req.body.title) {
+    res.status(400).send({ message: "Pole 'title' nie może być puste!" });
+    return;
   }
-}
-  
-// Retrieve all Tutorials from the database.
-exports.findAll = async (req, res) => {
-    try {
-      const tytul = req.query.tytul;
-      var condition = tytul ? { tytul: { [Op.like]: `%${tytul}%` } } : null;
-      const tutoriale = await Tutorial.findAll({
-        where: condition
-      });
-      res.send(tutoriale);
-    } catch (error) {
-        res.status(500).send({
-          message:
-          err.message || "Podczas odczytywania wystąpił błąd."
-        });
-    }
+
+  // Tworzymy obiekt listy
+  const list = {
+    title: req.body.title,
+    description: req.body.description,
+    check: req.body.check !== undefined ? req.body.check : false
   };
-  
-// Find a single Tutorial with an id
-exports.findOne = async (req, res) => {
-  try {
-      const id = req.params.id;
-  
-      const tutorial = await Tutorial.findByPk(id)
-      if (tutorial) {
-        res.send(tutorial)
-      } else {
-        res.status(404).send({
-          message: `Nie ma Tutorialu o id=${id}.`
-        });
-      }
-  } catch (err) {
-    res.status(500).send({
-      message: "Błąd szukania tutorialu o id=" + id
-    });
-  }
-  };
-  
-// Update a Tutorial by the id in the request
-exports.update = (req, res) => {
-    const id = req.params.id;
-  
-    Tutorial.update(req.body, {
-      where: { id: id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Tutorial was updated successfully."
-          });
-        } else {
-          res.send({
-            message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Error updating Tutorial with id=" + id
-        });
-      });
-  };
-  
-// Delete a Tutorial with the specified id in the request
-exports.delete = (req, res) => {
-    const id = req.params.id;
-  
-    Tutorial.destroy({
-      where: { id: id }
-    })
-      .then(num => {
-        if (num == 1) {
-          res.send({
-            message: "Tutorial was deleted successfully!"
-          });
-        } else {
-          res.send({
-            message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
-          });
-        }
-      })
-      .catch(err => {
-        res.status(500).send({
-          message: "Could not delete Tutorial with id=" + id
-        });
-      });
-  };
-    
-// Delete all Tutorials from the database.
-exports.deleteAll = (req, res) => {
-  Tutorial.destroy({
-    where: {},
-    truncate: false
-  })
-    .then(nums => {
-      res.send({ message: `Tutoriale ${nums} zostały usunięte!` });
-    })
+
+  // Zapis do bazy danych
+  Lists.create(list)
+    .then(data => res.send(data))
     .catch(err => {
       res.status(500).send({
-        message:
-          err.message || "Podczas usuwania wystąpiły błędy."
+        message: err.message || "Wystąpił problem podczas tworzenia listy."
       });
     });
 };
 
+// Pobierz wszystkie Listy
+exports.findAll = (req, res) => {
+  Lists.findAll()
+    .then(data => res.send(data))
+    .catch(err => {
+      res.status(500).send({
+        message: err.message || "Wystąpił problem podczas pobierania list."
+      });
+    });
+};
 
-  // Find all published Tutorials
-exports.findAllPublished = (req, res) => {
-  Tutorial.findAll({ where: { opublikowany: true } })
+// Pobierz pojedynczą Listę po identyfikatorze
+exports.findOne = (req, res) => {
+  const id = req.params.id;
+  Lists.findByPk(id)
     .then(data => {
-      res.send(data);
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({ message: `Nie znaleziono listy o id=${id}.` });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({ message: "Wystąpił problem podczas pobierania listy o id=" + id });
+    });
+};
+
+// Aktualizuj istniejącą Listę
+exports.update = (req, res) => {
+  const id = req.params.id;
+  Lists.update(req.body, { where: { id: id } })
+    .then(num => {
+      if (num == 1) {
+        res.send({ message: "Lista została pomyślnie zaktualizowana." });
+      } else {
+        res.send({
+          message: `Nie można zaktualizować listy o id=${id}. Możliwe, że nie istnieje lub dane zapytania są puste.`
+        });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({ message: "Błąd podczas aktualizacji listy o id=" + id });
+    });
+};
+
+// Usuń listę o określonym id
+exports.delete = (req, res) => {
+  const id = req.params.id;
+  Lists.destroy({ where: { id: id } })
+    .then(num => {
+      if (num == 1) {
+        res.send({ message: "Lista została pomyślnie usunięta." });
+      } else {
+        res.send({ message: `Nie można usunąć listy o id=${id}. Prawdopodobnie nie istnieje.` });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({ message: "Błąd podczas usuwania listy o id=" + id });
+    });
+};
+
+// Usuń wszystkie listy
+exports.deleteAll = (req, res) => {
+  Lists.destroy({ where: {}, truncate: false })
+    .then(nums => {
+      res.send({ message: `${nums} list(y) zostało/usuniętych pomyślnie!` });
     })
     .catch(err => {
       res.status(500).send({
-        message:
-          err.message || "Podczas znajdowania Tutoriali wystąpiły błędy."
+        message: err.message || "Wystąpił problem podczas usuwania wszystkich list."
       });
     });
 };
-                                                  
