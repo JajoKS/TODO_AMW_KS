@@ -1,16 +1,19 @@
 module.exports = (sequelize, DataTypes) => {
-    const Lists = sequelize.define("lists", {
+    // Definicja modelu "Lists" do tworzenia tabeli
+    const Lists = sequelize.define('lists', {
       title: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
+        allowNull: false,  // tytuł nie może być pusty
       },
       description: {
-        type: DataTypes.STRING
+        type: DataTypes.STRING,
       },
       check: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
       }
     });
   
-    return List;
+    return Lists;
   };
   

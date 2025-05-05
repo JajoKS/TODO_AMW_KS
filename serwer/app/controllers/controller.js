@@ -4,19 +4,7 @@ const DataTypes = Sequelize.DataTypes;
 
 // Definicja modelu "Lists".
 // Jeśli masz już osobny plik modelu, np. list.model.js, możesz go importować.
-const Lists = db.sequelize.define("lists", {
-  title: {
-    type: DataTypes.STRING,
-    allowNull: false  // przyjmujemy, że tytuł nie może być pusty
-  },
-  description: {
-    type: DataTypes.STRING
-  },
-  check: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-});
+const Lists = require('./app/models/list')(sequelize,DataTypes);
 
 // Synchronizacja modelu – utworzy tabelę "lists" jeżeli nie istnieje.
 Lists.sync()

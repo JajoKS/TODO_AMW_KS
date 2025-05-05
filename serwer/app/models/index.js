@@ -25,4 +25,15 @@ const db = {
     sequelize
 };
 
+db.authenticate = async () => {
+  try {
+    let t = await db.sequelize.authenticate();
+    console.log("---------------Połączenie z bazą ok")
+  } catch (err) {
+    console.error("-----------Błąd połączenia z bazą")
+  }
+}
+
+db.sync();
+
 module.exports = db;
