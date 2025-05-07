@@ -33,7 +33,16 @@ db.authenticate = async () => {
     console.error("-----------Błąd połączenia z bazą")
   }
 }
+db.Lists = require("./list")(sequelize, DataTypes);
 
-db.sync();
+// Funkcja synchronizacji bazy
+db.sync = async () => {
+  try {
+    await sequelize.sync();
+    console.log("Synchronizacja bazy zakończona");
+  } catch (error) {
+    console.error("Błąd synchronizacji:", error);
+  }
+};
 
 module.exports = db;

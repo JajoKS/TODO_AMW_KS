@@ -12,6 +12,6 @@ module.exports = app => {
     // Delete a List with id
     router.delete("/:id", lists.delete);
     // Delete all Tutorials
-    router.delete("/", lists.deleteAll);
-    app.use('/api/listy', router);
+    //router.delete("/", lists.deleteAll);
+    //app.use('/api/listy', router);
 };

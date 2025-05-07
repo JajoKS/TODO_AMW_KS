@@ -4,7 +4,7 @@ const DataTypes = Sequelize.DataTypes;
 
 // Definicja modelu "Lists".
 // Jeśli masz już osobny plik modelu, np. list.model.js, możesz go importować.
-const Lists = require('./app/models/list')(sequelize,DataTypes);
+const Lists = db.Lists;
 
 // Synchronizacja modelu – utworzy tabelę "lists" jeżeli nie istnieje.
 Lists.sync()
@@ -12,9 +12,8 @@ Lists.sync()
   .catch(err => console.error("Błąd podczas tworzenia tabeli 'lists':", err));
 
 // --- Funkcje obsługujące CRUD ---
-
 // Utwórz nową Listę
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
   // Walidacja – wymagamy pola title
   if (!req.body.title) {
     res.status(400).send({ message: "Pole 'title' nie może być puste!" });
