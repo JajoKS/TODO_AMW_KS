@@ -25,15 +25,25 @@ const db = {
     sequelize
 };
 
+db.Lists = require("./list")(sequelize, DataTypes);
+db.Tasks = require("./task")(sequelize, DataTypes);
+
+// Wywołanie metod associate (jeśli istnieją)
+Object.keys(db).forEach((modelName) => {
+  if (db[modelName] &&
+      typeof db[modelName].associate === "function") {
+    db[modelName].associate(db);
+  }
+});
+
 db.authenticate = async () => {
   try {
-    let t = await db.sequelize.authenticate();
+    await db.sequelize.authenticate();
     console.log("---------------Połączenie z bazą ok")
   } catch (err) {
     console.error("-----------Błąd połączenia z bazą")
   }
 }
-db.Lists = require("./list")(sequelize, DataTypes);
 
 // Funkcja synchronizacji bazy
 db.sync = async () => {
