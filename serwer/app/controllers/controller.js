@@ -5,6 +5,7 @@ const DataTypes = Sequelize.DataTypes;
 // Definicja modelu "Lists".
 // Jeśli masz już osobny plik modelu, np. list.model.js, możesz go importować.
 const Lists = db.Lists;
+const Task = db.Task;
 
 // Synchronizacja modelu – utworzy tabelę "lists" jeżeli nie istnieje.
 Lists.sync()
@@ -23,8 +24,11 @@ exports.create = async (req, res) => {
   // Tworzymy obiekt listy
   const list = {
     title: req.body.title,
-    description: req.body.description,
-    check: req.body.check !== undefined ? req.body.check : false
+  };
+  const task = {
+    description: "Przykładowe zadanie",
+    checkbox: false,
+    listNumber: listNumber  // klucz obcy wskazujący do listy
   };
 
   // Zapis do bazy danych
@@ -35,17 +39,38 @@ exports.create = async (req, res) => {
         message: err.message || "Wystąpił problem podczas tworzenia listy."
       });
     });
+
+    // Zapis do bazy danych
+  Task.create(task)
+  .then(data => res.send(data))
+  .catch(err => {
+    res.status(500).send({
+      message: err.message || "Wystąpił problem podczas tworzenia tasku."
+    });
+  });
 };
 
 // Pobierz wszystkie Listy
 exports.findAll = (req, res) => {
-  Lists.findAll()
-    .then(data => res.send(data))
-    .catch(err => {
-      res.status(500).send({
-        message: err.message || "Wystąpił problem podczas pobierania list."
+  const typ = req.params.typ;
+  const id = req.params.id;
+  if(typ = 1) {
+    Lists.findAll()
+      .then(data => res.send(data))
+      .catch(err => {
+        res.status(500).send({
+          message: err.message || "Wystąpił problem podczas pobierania list."
+        });
       });
-    });
+  } else {
+    Task.findAll({where: { id : id}})
+      .then(data => res.send(data))
+      .catch(err => {
+        res.status(500).send({
+          message: err.message || "Wystąpił problem podczas pobierania list."
+        });
+      });
+  }
 };
 
 // Pobierz pojedynczą Listę po identyfikatorze
@@ -65,7 +90,7 @@ exports.findOne = (req, res) => {
 };
 
 // Aktualizuj istniejącą Listę
-exports.update = (req, res) => {
+/*exports.update = (req, res) => {
   const id = req.params.id;
   Lists.update(req.body, { where: { id: id } })
     .then(num => {
@@ -80,26 +105,41 @@ exports.update = (req, res) => {
     .catch(err => {
       res.status(500).send({ message: "Błąd podczas aktualizacji listy o id=" + id });
     });
-};
+};*/
 
 // Usuń listę o określonym id
 exports.delete = (req, res) => {
+  const typ = req.params.typ;
   const id = req.params.id;
-  Lists.destroy({ where: { id: id } })
-    .then(num => {
-      if (num == 1) {
-        res.send({ message: "Lista została pomyślnie usunięta." });
-      } else {
-        res.send({ message: `Nie można usunąć listy o id=${id}. Prawdopodobnie nie istnieje.` });
-      }
-    })
+  if (typ = 1) {
+    Lists.destroy({ where: { id: id } })
+      .then(num => {
+        if (num == 1) {
+          res.send({ message: "Lista została pomyślnie usunięta." });
+        } else {
+          res.send({ message: `Nie można usunąć listy o id=${id}. Prawdopodobnie nie istnieje.` });
+        }
+      })
     .catch(err => {
       res.status(500).send({ message: "Błąd podczas usuwania listy o id=" + id });
     });
+  } else {
+    Task.destroy({ where: { id: id } })
+    .then(num => {
+      if (num == 1) {
+        res.send({ message: "Task został pomyślnie usunięty." });
+      } else {
+        res.send({ message: `Nie można usunąć task o id=${id}. Prawdopodobnie nie istnieje.` });
+      }
+    })
+    .catch(err => {
+      res.status(500).send({ message: "Błąd podczas usuwania task o id=" + id });
+    });
+  }
 };
 
 // Usuń wszystkie listy
-exports.deleteAll = (req, res) => {
+/*exports.deleteAll = (req, res) => {
   Lists.destroy({ where: {}, truncate: false })
     .then(nums => {
       res.send({ message: `${nums} list(y) zostało/usuniętych pomyślnie!` });
@@ -109,4 +149,4 @@ exports.deleteAll = (req, res) => {
         message: err.message || "Wystąpił problem podczas usuwania wszystkich list."
       });
     });
-};
+};*/
