@@ -12,7 +12,9 @@ module.exports = app => {
     router.get("/:id", Lists.findOne);
     // Update a List with id
     router.delete("/:id", Lists.delete);
-    // Delete all Tutorials
+    // Create a new List
+    router.delete("/:id", Task.delete);
+    // Delete all 
     //router.delete("/", lists.deleteAll);
     //app.use('/api/listy', router);
 };

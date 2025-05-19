@@ -6,3 +6,7 @@
 # npm i pg --save
 
 # "dev": "node server.js" w serwer/package.json
+
+# react:
+# npm i react-router-dom --save
+# npm i nodemon --save

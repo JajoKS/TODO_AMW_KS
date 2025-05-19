@@ -1,62 +1,45 @@
 import React from "react";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { Link } from 'react-router-dom';
 const PokazListy = () => {
 
     const client = axios.create({
-        baseURL: ""
+        baseURL: "http://localhost:3001/api/"
       });
     const [dane, setDane] = useState([]);
-    const [zmienna, setZmienna] = useState(false);
+    const [lists, setLists] = useState([]);
     
     useEffect(() => {
-        try {
-            client.get('/')
-            .then
-                (function (response) {
-                console.log(response);
-                setDane(response.data)
-                console.log(response.data)
-            })
-            .catch(function (error) {
-                console.log(error);
-            })
-        }
-        catch(error) {
-            console.log(error);
-        }
-    },[zmienna])
+        // Pobieramy wszystkie listy; tutaj przekazujemy parametr '1', który odpowiada warunkowi typ = 1 w backendzie
+        client
+          .get('/api/lists/1')
+          .then((response) => {
+            setLists([response.data]);
+          })
+          .catch((error) => {
+            console.error('Błąd podczas pobierania list:', error);
+          });
+      }, []);
 
     function Pokaz() {
         setZmienna(!zmienna)
     }
     return (
-        <div>
-            <div className='row'>
-                <h1>GetAll</h1>
-                <div>
-                    {zmienna && (
-                    <table className="table">
-                        <thead>
-                            <tr><th>id</th><th>Tytuł</th><th>Opis</th><th>Opublikowany</th><th>Data utworzenia</th><th>Data aktualizacji</th></tr>
-                        </thead>
-                        <tbody>
-                            {dane.map((item) => (<tr key={item.id}>
-                                <td> {item.id}</td>
-                                <td> {item.tytul}</td>
-                                <td>{item.opis}</td>
-                                <td>{item.opublikowany ? "Tak":"Nie"}</td>
-                                <td>{new Date(item.createdAt).toLocaleDateString()}</td>
-                                <td>{new Date(item.updatedAt).toLocaleDateString()}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                    )}
-                    <button className="btn btn-primary rounded" onClick={Pokaz}>Pokaz/Schowaj</button>
-                </div>
-            </div>
-        </div>
+    <div className="container mt-3">
+      <div className="list-group">
+        {lists.map((list) => (
+          // Kliknięcie w dany link przekierowuje do ścieżki np. /list/123, gdzie 123 to listNumber danej listy
+          <Link
+            key={list.listNumber}
+            to={`/list/${list.listNumber}`}
+            className="list-group-item list-group-item-action"
+          >
+            {list.title}
+          </Link>
+        ))}
+      </div>
+    </div>
     )
 }
 export default PokazListy;

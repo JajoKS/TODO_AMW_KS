@@ -53,7 +53,6 @@ exports.create = async (req, res) => {
 // Pobierz wszystkie Listy
 exports.findAll = (req, res) => {
   const typ = req.params.typ;
-  const id = req.params.id;
   if(typ = 1) {
     Lists.findAll()
       .then(data => res.send(data))
