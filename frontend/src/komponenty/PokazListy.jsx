@@ -1,45 +1,49 @@
-import React from "react";
-import { useState, useEffect } from "react";
-import axios from "axios";
+// PokazListy.jsx
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Link } from 'react-router-dom';
+
 const PokazListy = () => {
+  // Możesz używać pełnego adresu lub ścieżki względnej, jeśli skonfigurujesz proxy / CORS.
+  const [lists, setLists] = useState([]);
 
-    const client = axios.create({
-        baseURL: "http://localhost:3001/api/"
+  useEffect(() => {
+    axios.get("http://localhost:5432/select-all")
+      .then(response => {
+        // Upewnij się, że backend zwraca tablicę
+        if (Array.isArray(response.data)) {
+          setLists(response.data);
+        } else {
+          console.error("Otrzymana odpowiedź nie jest tablicą:", response.data);
+          setLists([]);
+        }
+      })
+      .catch(error => {
+        console.error("Błąd podczas pobierania danych:", error);
       });
-    const [dane, setDane] = useState([]);
-    const [lists, setLists] = useState([]);
-    
-    useEffect(() => {
-        // Pobieramy wszystkie listy; tutaj przekazujemy parametr '1', który odpowiada warunkowi typ = 1 w backendzie
-        client
-          .get('/api/lists/1')
-          .then((response) => {
-            setLists([response.data]);
-          })
-          .catch((error) => {
-            console.error('Błąd podczas pobierania list:', error);
-          });
-      }, []);
+  }, []);
 
-    function Pokaz() {
-        setZmienna(!zmienna)
-    }
-    return (
+  return (
     <div className="container mt-3">
       <div className="list-group">
-        {lists.map((list) => (
-          // Kliknięcie w dany link przekierowuje do ścieżki np. /list/123, gdzie 123 to listNumber danej listy
-          <Link
-            key={list.listNumber}
-            to={`/list/${list.listNumber}`}
-            className="list-group-item list-group-item-action"
-          >
-            {list.title}
-          </Link>
-        ))}
+        {lists.length > 0 ? (
+          lists.map((list) => (
+            // Zakładamy, że każdy obiekt ma unikalny identyfikator (np. listNumber lub id) i tytuł
+            <Link
+              key={list.listNumber || list.id}
+              // Przykładowa trasa – możesz zmienić ją według potrzeb
+              to={`/lista/${list.listNumber || list.id}`}
+              className="list-group-item list-group-item-action"
+            >
+              {list.title}
+            </Link>
+          ))
+        ) : (
+          <p>Brak list do wyświetlenia.</p>
+        )}
       </div>
     </div>
-    )
-}
+  );
+};
+
 export default PokazListy;

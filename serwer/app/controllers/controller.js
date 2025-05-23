@@ -1,151 +1,85 @@
-const db = require("../models"); // Załóżmy, że models/index.js eksportuje obiekt { sequelize, Sequelize, ... }
-const Sequelize = db.Sequelize;
-const DataTypes = Sequelize.DataTypes;
-
-// Definicja modelu "Lists".
-// Jeśli masz już osobny plik modelu, np. list.model.js, możesz go importować.
+// controller.js
+const db = require("../models");
 const Lists = db.Lists;
-const Task = db.Task;
+const Tasks = db.Tasks;
 
-// Synchronizacja modelu – utworzy tabelę "lists" jeżeli nie istnieje.
-Lists.sync()
-  .then(() => console.log("Tabela 'lists' została zapewniona (utworzona, jeśli nie istniała)."))
-  .catch(err => console.error("Błąd podczas tworzenia tabeli 'lists':", err));
-
-// --- Funkcje obsługujące CRUD ---
-// Utwórz nową Listę
-exports.create = async (req, res) => {
-  // Walidacja – wymagamy pola title
+// Utwórz nową listę
+exports.create = (req, res) => {
   if (!req.body.title) {
     res.status(400).send({ message: "Pole 'title' nie może być puste!" });
     return;
   }
-
-  // Tworzymy obiekt listy
-  const list = {
-    title: req.body.title,
-  };
-  const task = {
-    description: "Przykładowe zadanie",
-    checkbox: false,
-    listNumber: listNumber  // klucz obcy wskazujący do listy
-  };
-
-  // Zapis do bazy danych
+  const list = { title: req.body.title };
   Lists.create(list)
     .then(data => res.send(data))
     .catch(err => {
-      res.status(500).send({
-        message: err.message || "Wystąpił problem podczas tworzenia listy."
-      });
+      res.status(500).send({ message: err.message || "Błąd przy tworzeniu listy." });
     });
-
-    // Zapis do bazy danych
-  Task.create(task)
-  .then(data => res.send(data))
-  .catch(err => {
-    res.status(500).send({
-      message: err.message || "Wystąpił problem podczas tworzenia tasku."
-    });
-  });
 };
 
-// Pobierz wszystkie Listy
+// Pobierz wszystkie listy
 exports.findAll = (req, res) => {
-  const typ = req.params.typ;
-  if(typ = 1) {
-    Lists.findAll()
-      .then(data => res.send(data))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || "Wystąpił problem podczas pobierania list."
-        });
-      });
-  } else {
-    Task.findAll({where: { id : id}})
-      .then(data => res.send(data))
-      .catch(err => {
-        res.status(500).send({
-          message: err.message || "Wystąpił problem podczas pobierania list."
-        });
-      });
-  }
+  Lists.findAll({ include: [{ model: Tasks, as: 'tasks' }] })
+    .then(data => res.send(data))
+    .catch(err => {
+      res.status(500).send({ message: err.message || "Błąd przy pobieraniu list." });
+    });
 };
 
-// Pobierz pojedynczą Listę po identyfikatorze
+// Pobierz pojedynczą listę – konwertujemy id na liczbę, aby dopasować do pola listNumber
 exports.findOne = (req, res) => {
-  const id = req.params.id;
-  Lists.findByPk(id)
+  const id = parseInt(req.params.id, 10);
+  Lists.findByPk(id, { include: [{ model: Tasks, as: 'tasks' }] })
     .then(data => {
-      if (data) {
-        res.send(data);
-      } else {
-        res.status(404).send({ message: `Nie znaleziono listy o id=${id}.` });
-      }
+      if (data) res.send(data);
+      else res.status(404).send({ message: `Nie znaleziono listy o id=${id}.` });
     })
     .catch(err => {
-      res.status(500).send({ message: "Wystąpił problem podczas pobierania listy o id=" + id });
+      res.status(500).send({ message: "Błąd przy pobieraniu listy o id=" + id });
     });
 };
 
-// Aktualizuj istniejącą Listę
-/*exports.update = (req, res) => {
-  const id = req.params.id;
-  Lists.update(req.body, { where: { id: id } })
-    .then(num => {
-      if (num == 1) {
-        res.send({ message: "Lista została pomyślnie zaktualizowana." });
-      } else {
-        res.send({
-          message: `Nie można zaktualizować listy o id=${id}. Możliwe, że nie istnieje lub dane zapytania są puste.`
-        });
-      }
-    })
-    .catch(err => {
-      res.status(500).send({ message: "Błąd podczas aktualizacji listy o id=" + id });
-    });
-};*/
-
-// Usuń listę o określonym id
+// Usuń listę
 exports.delete = (req, res) => {
-  const typ = req.params.typ;
   const id = req.params.id;
-  if (typ = 1) {
-    Lists.destroy({ where: { id: id } })
-      .then(num => {
-        if (num == 1) {
-          res.send({ message: "Lista została pomyślnie usunięta." });
-        } else {
-          res.send({ message: `Nie można usunąć listy o id=${id}. Prawdopodobnie nie istnieje.` });
-        }
-      })
-    .catch(err => {
-      res.status(500).send({ message: "Błąd podczas usuwania listy o id=" + id });
-    });
-  } else {
-    Task.destroy({ where: { id: id } })
+  Lists.destroy({ where: { id: id } })
     .then(num => {
-      if (num == 1) {
-        res.send({ message: "Task został pomyślnie usunięty." });
-      } else {
-        res.send({ message: `Nie można usunąć task o id=${id}. Prawdopodobnie nie istnieje.` });
-      }
+      if (num == 1) res.send({ message: "Lista została usunięta." });
+      else res.send({ message: `Nie można usunąć listy o id=${id}.` });
     })
     .catch(err => {
-      res.status(500).send({ message: "Błąd podczas usuwania task o id=" + id });
+      res.status(500).send({ message: "Błąd przy usuwaniu listy o id=" + id });
     });
+};
+
+// Tworzenie nowego tasku dla listy – korzystamy z req.params.id jako identyfikatora listy
+exports.createTask = async (req, res) => {
+  if (!req.body.description) {
+    return res.status(400).send({ message: "Pole 'description' jest wymagane!" });
+  }
+  const newTask = {
+    description: req.body.description,
+    checkbox: req.body.checkbox || false,
+    listNumber: parseInt(req.params.id, 10)
+  };
+  try {
+    const task = await Tasks.create(newTask);
+    res.status(201).json(task);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Usuń wszystkie listy
-/*exports.deleteAll = (req, res) => {
-  Lists.destroy({ where: {}, truncate: false })
-    .then(nums => {
-      res.send({ message: `${nums} list(y) zostało/usuniętych pomyślnie!` });
-    })
-    .catch(err => {
-      res.status(500).send({
-        message: err.message || "Wystąpił problem podczas usuwania wszystkich list."
-      });
-    });
-};*/
+// Usuwanie tasku – pobieramy taskId z req.params
+exports.deleteTask = async (req, res) => {
+  const taskId = req.params.taskId;
+  try {
+    const num = await Tasks.destroy({ where: { id: taskId } });
+    if (num === 1)
+      res.json({ message: "Task został usunięty." });
+    else
+      res.status(404).json({ message: `Task o id=${taskId} nie został znaleziony.` });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
