@@ -4,13 +4,12 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 
 const PokazListy = () => {
-  // Możesz używać pełnego adresu lub ścieżki względnej, jeśli skonfigurujesz proxy / CORS.
   const [lists, setLists] = useState([]);
 
+  // Pobieramy istniejące listy
   useEffect(() => {
     axios.get("http://localhost:5432/select-all")
       .then(response => {
-        // Upewnij się, że backend zwraca tablicę
         if (Array.isArray(response.data)) {
           setLists(response.data);
         } else {
@@ -23,15 +22,34 @@ const PokazListy = () => {
       });
   }, []);
 
+  // Dodawanie nowej listy
+  const handleAddList = () => {
+    const title = prompt("Podaj tytuł nowej listy:");
+    if (!title) return;
+
+    // Wysyłamy żądanie POST do API. Zakładamy, że endpoint to: http://localhost:5432/api/listy
+    axios.post("http://localhost:5432/api/listy", { title })
+      .then(response => {
+        // Dodajemy nową listę do lokalnego stanu (na końcu tablicy)
+        setLists([...lists, response.data]);
+      })
+      .catch(error => {
+        console.error("Błąd podczas dodawania listy:", error);
+      });
+  };
+
   return (
     <div className="container mt-3">
+      {/* Przycisk umożliwiający dodanie nowej listy */}
+      <button className="btn btn-primary mb-3" onClick={handleAddList}>
+        Dodaj nową listę
+      </button>
       <div className="list-group">
         {lists.length > 0 ? (
           lists.map((list) => (
-            // Zakładamy, że każdy obiekt ma unikalny identyfikator (np. listNumber lub id) i tytuł
+            // Używamy unique key (listNumber lub id) i link kieruje do szczegółów listy
             <Link
               key={list.listNumber || list.id}
-              // Przykładowa trasa – możesz zmienić ją według potrzeb
               to={`/lista/${list.listNumber || list.id}`}
               className="list-group-item list-group-item-action"
             >

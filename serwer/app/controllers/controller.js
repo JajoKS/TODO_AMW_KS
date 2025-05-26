@@ -28,29 +28,51 @@ exports.findAll = (req, res) => {
 
 // Pobierz pojedynczą listę – konwertujemy id na liczbę, aby dopasować do pola listNumber
 exports.findOne = (req, res) => {
-  const id = parseInt(req.params.id, 10);
-  Lists.findByPk(id, { include: [{ model: Tasks, as: 'tasks' }] })
+  const listNumber = parseInt(req.params.id, 10);
+  Lists.findByPk(listNumber, { include: [{ model: Tasks, as: 'tasks' }] })
     .then(data => {
-      if (data) res.send(data);
-      else res.status(404).send({ message: `Nie znaleziono listy o id=${id}.` });
+      if (data) {
+        res.send(data);
+      } else {
+        res.status(404).send({ message: `Nie znaleziono listy o listNumber=${listNumber}.` });
+      }
     })
     .catch(err => {
-      res.status(500).send({ message: "Błąd przy pobieraniu listy o id=" + id });
+      res.status(500).send({ message: "Błąd przy pobieraniu listy o listNumber=" + listNumber });
     });
 };
 
-// Usuń listę
-exports.delete = (req, res) => {
-  const id = req.params.id;
-  Lists.destroy({ where: { id: id } })
-    .then(num => {
-      if (num == 1) res.send({ message: "Lista została usunięta." });
-      else res.send({ message: `Nie można usunąć listy o id=${id}.` });
-    })
-    .catch(err => {
-      res.status(500).send({ message: "Błąd przy usuwaniu listy o id=" + id });
-    });
+
+
+exports.deleteList = async (req, res) => {
+  const id = parseInt(req.params.listId, 10);
+
+  try {
+    const list = await Lists.findByPk(id);
+    if (!list) {
+      return res.status(404).send({ message: `Nie znaleziono listy o id=${id}.` });
+    }
+    
+    const listNumber = list.listNumber;
+    await Tasks.destroy({ where: { listNumber: listNumber } });
+    const num = await Lists.destroy({ where: { listNumber: listNumber } });
+    
+    if (num === 1) {
+      res.send({ message: "Lista wraz z powiązanymi taskami została usunięta." });
+    } else {
+      res.send({ message: `Nie można usunąć listy o id=${listNumber}.` });
+    }
+  } catch (err) {
+    console.error("Błąd przy usuwaniu listy:", err);
+    res.status(500).send({ message: "Błąd przy usuwaniu listy o id=" + id });
+  }
 };
+
+
+
+
+
+
 
 // Tworzenie nowego tasku dla listy – korzystamy z req.params.id jako identyfikatora listy
 exports.createTask = async (req, res) => {

@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         tableName: 'lists'      // jawna nazwa tabeli
       });
       Lists.associate = (models) => {
-        Lists.hasMany(models.Tasks, { foreignKey: 'listNumber', as: 'tasks' });
+        Lists.hasMany(models.Tasks, { foreignKey: 'listNumber', as: 'tasks', onDelete: 'CASCADE' });
       };
     return Lists;
   };

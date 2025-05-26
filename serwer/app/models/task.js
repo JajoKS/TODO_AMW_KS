@@ -11,10 +11,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    checkbox: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
-    },
     // Klucz obcy – odniesienie do tabeli lists, pole listNumber
     listNumber: {
       type: DataTypes.INTEGER,

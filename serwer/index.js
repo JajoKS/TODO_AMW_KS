@@ -21,7 +21,6 @@ app.use(express.json());
       console.log("Utworzono listę o numerze:", newList.listNumber, "z tytułem:", newList.title);
       const task = await Tasks.create({
         description: "Przykładowe zadanie",
-        checkbox: false,
         listNumber: newList.listNumber
       });
       console.log("Utworzono zadanie:", task.toJSON());
