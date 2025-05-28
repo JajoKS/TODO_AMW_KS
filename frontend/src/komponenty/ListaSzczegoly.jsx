@@ -12,7 +12,7 @@ const ListaSzczegoly = () => {
 
   const fetchList = () => {
 
-    axios.defaults.baseURL = process.env.URL_ACC || "http://localhost:5432";
+    axios.defaults.baseURL = process.env.URL_ACC;
     axios
       .get(`/api/listy/${id}`)
       .then((response) => {
