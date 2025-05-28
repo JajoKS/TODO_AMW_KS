@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 
 const PokazListy = () => {
   const [lists, setLists] = useState([]);
-  
+
   // Pobieramy istniejące listy
   useEffect(() => {
-    axios.get("/select-all")
+    axios.get("https://todo-amw-ks.onrender.com/select-all")
       .then(response => {
         if (Array.isArray(response.data)) {
           setLists(response.data);
@@ -28,7 +28,7 @@ const PokazListy = () => {
     if (!title) return;
 
     // Wysyłamy żądanie POST do API. Zakładamy, że endpoint to: http://localhost:5432/api/listy
-    axios.post("/api/listy", { title })
+    axios.post("https://todo-amw-ks.onrender.com/api/listy", { title })
       .then(response => {
         // Dodajemy nową listę do lokalnego stanu (na końcu tablicy)
         setLists([...lists, response.data]);

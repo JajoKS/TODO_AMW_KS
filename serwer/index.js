@@ -7,7 +7,10 @@ const db = require('./app/models/index');
 const { Lists, Tasks } = db;
 const app = express();
 
-app.use(cors("https://todo-amw-ks.onrender.com/"));
+var corsOptions = {
+origin: "https://todo-amw-ks.onrender.com"
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 (async () => {
