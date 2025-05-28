@@ -8,7 +8,7 @@ const PokazListy = () => {
 
   // Pobieramy istniejące listy
   useEffect(() => {
-    axios.get("https://todo-amw-ks.onrender.com/select-all")
+    axios.get("/select-all")
       .then(response => {
         if (Array.isArray(response.data)) {
           setLists(response.data);
@@ -28,7 +28,7 @@ const PokazListy = () => {
     if (!title) return;
 
     // Wysyłamy żądanie POST do API. Zakładamy, że endpoint to: http://localhost:5432/api/listy
-    axios.post("https://todo-amw-ks.onrender.com/api/listy", { title })
+    axios.post("/api/listy", { title })
       .then(response => {
         // Dodajemy nową listę do lokalnego stanu (na końcu tablicy)
         setLists([...lists, response.data]);
