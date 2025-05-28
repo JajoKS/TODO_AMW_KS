@@ -12,7 +12,7 @@ const ListaSzczegoly = () => {
 
   const fetchList = () => {
     axios
-      .get(`http://localhost:5432/api/listy/${id}`)
+      .get(`/api/listy/${id}`)
       .then((response) => {
         if (response.data) {
           setList(response.data);
@@ -34,7 +34,7 @@ const ListaSzczegoly = () => {
   // Usuwanie tasku – DELETE /api/listy/:id/tasks/:taskId
   const handleDeleteTask = (taskId) => {
     axios
-      .delete(`http://localhost:5432/api/listy/${id}/tasks/${taskId}`)
+      .delete(`/api/listy/${id}/tasks/${taskId}`)
       .then(() => {
         const updatedTasks = list.tasks.filter((task) => task.id !== taskId);
         setList({ ...list, tasks: updatedTasks });
@@ -54,7 +54,7 @@ const ListaSzczegoly = () => {
     };
 
     axios
-      .post(`http://localhost:5432/api/listy/${id}/tasks`, newTask)
+      .post(`/api/listy/${id}/tasks`, newTask)
       .then((response) => {
         setList({ ...list, tasks: [...list.tasks, response.data] });
       })
@@ -66,7 +66,7 @@ const ListaSzczegoly = () => {
   // Usuwanie całej listy – DELETE /api/listy/:id
   const deleteList = (listId) => {
     axios
-      .delete(`http://localhost:5432/api/listy/lista/${listId}`)
+      .delete(`/api/listy/lista/${listId}`)
       .then((response) => {
         console.log("Lista została usunięta:", response.data);
         // Po usunięciu przekierowujemy użytkownika np. na stronę główną

@@ -6,6 +6,9 @@ require("dotenv").config();
 // Pobierz URL bazy z pliku .env
 const databaseUrl = process.env.DB_URL;
 
+app.use(cors("https://todo-amw-ks.onrender.com/"));
+app.use(express.json());
+
 // Utwórz instancję Sequelize
 const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
