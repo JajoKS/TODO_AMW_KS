@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 
 const PokazListy = () => {
   const [lists, setLists] = useState([]);
-  axios.defaults.baseURL = process.env.URL_ACC;
+  axios.defaults.baseURL = process.env.REACT_APP_URL_ACC;
   // Pobieramy istniejące listy
   useEffect(() => {
     axios.get("/select-all")

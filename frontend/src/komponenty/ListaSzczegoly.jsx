@@ -12,7 +12,7 @@ const ListaSzczegoly = () => {
 
   const fetchList = () => {
 
-    axios.defaults.baseURL = process.env.URL_ACC;
+    axios.defaults.baseURL = process.env.REACT_APP_URL_ACC;
     axios
       .get(`/api/listy/${id}`)
       .then((response) => {
