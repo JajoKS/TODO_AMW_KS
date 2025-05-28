@@ -11,8 +11,10 @@ const ListaSzczegoly = () => {
   const [error, setError] = useState(null);
 
   const fetchList = () => {
+
+    axios.defaults.baseURL = process.env.URL_ACC || "http://localhost:5432";
     axios
-      .get(`https://todo-amw-ks.onrender.com/api/listy/${id}`)
+      .get(`/api/listy/${id}`)
       .then((response) => {
         if (response.data) {
           setList(response.data);
@@ -34,7 +36,7 @@ const ListaSzczegoly = () => {
   // Usuwanie tasku – DELETE /api/listy/:id/tasks/:taskId
   const handleDeleteTask = (taskId) => {
     axios
-      .delete(`https://todo-amw-ks.onrender.com/api/listy/${id}/tasks/${taskId}`)
+      .delete(`/api/listy/${id}/tasks/${taskId}`)
       .then(() => {
         const updatedTasks = list.tasks.filter((task) => task.id !== taskId);
         setList({ ...list, tasks: updatedTasks });
@@ -54,7 +56,7 @@ const ListaSzczegoly = () => {
     };
 
     axios
-      .post(`https://todo-amw-ks.onrender.com/api/listy/${id}/tasks`, newTask)
+      .post(`/api/listy/${id}/tasks`, newTask)
       .then((response) => {
         setList({ ...list, tasks: [...list.tasks, response.data] });
       })
@@ -66,7 +68,7 @@ const ListaSzczegoly = () => {
   // Usuwanie całej listy – DELETE /api/listy/:id
   const deleteList = (listId) => {
     axios
-      .delete(`https://todo-amw-ks.onrender.com/api/listy/lista/${listId}`)
+      .delete(`/api/listy/lista/${listId}`)
       .then((response) => {
         console.log("Lista została usunięta:", response.data);
         // Po usunięciu przekierowujemy użytkownika np. na stronę główną
