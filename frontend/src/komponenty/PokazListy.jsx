@@ -28,7 +28,7 @@ const PokazListy = () => {
     if (!title) return;
 
     // Wysyłamy żądanie POST do API. Zakładamy, że endpoint to: http://localhost:5432/api/listy
-    axios.post("/api/listy", { title })
+    axios.post("https://todo-amw-ks-backend.onrender.com/api/listy", { title })
       .then(response => {
         // Dodajemy nową listę do lokalnego stanu (na końcu tablicy)
         setLists([...lists, response.data]);
