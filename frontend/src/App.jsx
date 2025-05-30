@@ -32,7 +32,7 @@ function App() {
         </div>
         {/* Stopka */}
         <div className="footer">
-          <p>Stronę wykonał: ...</p>
+          <p>Stronę wykonał: Krzysztof Serafin</p>
         </div>
       </div>
     </BrowserRouter>
