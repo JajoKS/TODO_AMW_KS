@@ -5,10 +5,10 @@ import { Link } from 'react-router-dom';
 
 const PokazListy = () => {
   const [lists, setLists] = useState([]);
-  axios.defaults.baseURL = `https://todo-amw-ks-backend.onrender.com` //process.env.REACT_APP_URL_ACC;
+  //axios.defaults.baseURL = `https://todo-amw-ks-backend.onrender.com` //process.env.REACT_APP_URL_ACC;
   // Pobieramy istniejące listy
   useEffect(() => {
-    axios.get("/select-all")
+    axios.get("https://todo-amw-ks-backend.onrender.com/select-all")
       .then(response => {
         if (Array.isArray(response.data)) {
           setLists(response.data);
