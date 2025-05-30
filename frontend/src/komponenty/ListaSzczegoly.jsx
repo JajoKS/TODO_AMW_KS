@@ -72,7 +72,7 @@ const ListaSzczegoly = () => {
       .then((response) => {
         console.log("Lista została usunięta:", response.data);
         // Po usunięciu przekierowujemy użytkownika np. na stronę główną
-        window.location.href = "/lista";
+        window.location.href = "/";
       })
       .catch((error) => {
         console.error(
