@@ -8,7 +8,8 @@ const { Lists, Tasks } = db;
 const app = express();
 
 var corsOptions = {
-origin: "https://todo-amw-ks-backend.onrender.com"
+origin: ['https://todo-amw-ks-backend.onrender.com',
+  'https://todo-amw-ks.onrender.com']
 };
 app.use(cors(corsOptions));
 app.use(express.json());
